@@ -1,0 +1,351 @@
+/* === IT Future 2026 — темний технологічний стиль === */
+
+:root {
+  --bg-deep: #0a0e1a;
+  --bg-card: rgba(20, 28, 52, 0.75);
+  --accent: #a855f7;
+  --accent-2: #6366f1;
+  --accent-glow: rgba(168, 85, 247, 0.45);
+  --text: #e8ecf4;
+  --text-muted: #94a3b8;
+  --border: rgba(148, 163, 184, 0.2);
+  --success: #22c55e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  background: linear-gradient(160deg, #060912 0%, #0f1729 40%, #1a1040 100%);
+  color: var(--text);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.bg-glow {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-glow--1 {
+  width: 400px;
+  height: 400px;
+  background: var(--accent-glow);
+  top: -100px;
+  right: -80px;
+  animation: pulse-glow 8s ease-in-out infinite;
+}
+
+.bg-glow--2 {
+  width: 350px;
+  height: 350px;
+  background: rgba(99, 102, 241, 0.35);
+  bottom: 10%;
+  left: -100px;
+  animation: pulse-glow 10s ease-in-out infinite reverse;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+.site-header,
+main,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-logo {
+  font-family: "Orbitron", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.brand-icon {
+  color: var(--accent);
+  margin-right: 0.25rem;
+}
+
+.text-accent {
+  color: var(--accent) !important;
+}
+
+.nav-link {
+  color: var(--text-muted) !important;
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.nav-link:hover {
+  color: var(--accent) !important;
+  transform: translateY(-1px);
+}
+
+/* Hero */
+.hero-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
+  background: linear-gradient(90deg, #fff, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid var(--border);
+  font-size: 0.875rem;
+  color: var(--accent);
+}
+
+.hero-text {
+  color: var(--text-muted);
+  max-width: 36rem;
+  line-height: 1.65;
+}
+
+.section-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+}
+
+.text-muted-custom {
+  color: var(--text-muted) !important;
+}
+
+/* Glass cards */
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(168, 85, 247, 0.35);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.hero-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.hero-list li {
+  padding: 0.5rem 0;
+  padding-left: 1.25rem;
+  position: relative;
+  color: var(--text-muted);
+}
+
+.hero-list li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
+.feature-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+/* Tickets */
+.ticket-card {
+  position: relative;
+}
+
+.ticket-card--vip {
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+.vip-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.35rem;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+}
+
+.ticket-price {
+  font-family: "Orbitron", sans-serif;
+  font-size: 2rem;
+  margin: 0.75rem 0;
+}
+
+.ticket-features {
+  color: var(--text-muted);
+  padding-left: 1.25rem;
+}
+
+.ticket-features li {
+  margin-bottom: 0.35rem;
+}
+
+.discount-hint code {
+  color: var(--accent);
+  background: rgba(168, 85, 247, 0.15);
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+}
+
+/* Form */
+.form-control-custom {
+  background: rgba(10, 14, 26, 0.6);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control-custom:focus {
+  background: rgba(10, 14, 26, 0.8);
+  border-color: var(--accent);
+  color: var(--text);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+}
+
+.form-control-custom::placeholder {
+  color: #64748b;
+}
+
+.form-label {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.was-validated .form-control-custom:invalid,
+.form-control-custom.is-invalid {
+  border-color: #f87171;
+}
+
+/* Buttons */
+.btn-glow {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-glow:hover {
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--accent-glow);
+}
+
+.btn-glow:active {
+  transform: translateY(0);
+}
+
+.btn-outline-glow {
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  background: transparent;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-outline-glow:hover {
+  background: rgba(168, 85, 247, 0.15);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Calculation */
+.calculation-box {
+  background: rgba(10, 14, 26, 0.5);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+.calculation-details {
+  font-family: "Inter", monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+  margin: 0;
+  background: transparent;
+  border: none;
+}
+
+.total-sum {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.25rem;
+  color: var(--success);
+}
+
+.alert-success {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #86efac;
+}
+
+.site-footer {
+  border-top: 1px solid var(--border);
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+  .hero-card {
+    margin-top: 1rem;
+  }
+
+  .btn-glow,
+  .btn-outline-glow {
+    width: 100%;
+  }
+}

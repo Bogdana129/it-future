@@ -110,7 +110,7 @@
               <h3 class="h4 text-accent">VIP</h3>
               <p class="ticket-price">800 <small>грн</small></p>
               <ul class="ticket-features">
-                <li Усе з Standard</li>
+                <li>Усе з Standard</li>
                 <li>Закрите Q&amp;A зі спікерами</li>
                 <li>Пріоритетна реєстрація на воркшопи</li>
               </ul>
@@ -149,19 +149,22 @@
                   <div class="col-sm-6">
                     <label for="standardQty" class="form-label">Квитки Standard</label>
                     <input type="number" class="form-control form-control-custom" id="standardQty"
-                      min="0" max="99" value="0" required>
+                      min="0" max="99" step="1" value="0" inputmode="numeric" required
+                      aria-describedby="participantsHint ticketsError">
                     <div class="invalid-feedback" id="standardError"></div>
                   </div>
                   <div class="col-sm-6">
                     <label for="vipQty" class="form-label">Квитки VIP</label>
                     <input type="number" class="form-control form-control-custom" id="vipQty"
-                      min="0" max="99" value="0" required>
+                      min="0" max="99" step="1" value="0" inputmode="numeric" required
+                      aria-describedby="participantsHint ticketsError">
                     <div class="invalid-feedback" id="vipError"></div>
                   </div>
                 </div>
-                <p class="small text-muted-custom mb-3" id="participantsHint">
+                <p class="small text-muted-custom mb-1" id="participantsHint">
                   Загальна кількість учасників (квитків): <strong id="totalParticipants">0</strong>
                 </p>
+                <p class="small form-error-hint d-none mb-3" id="ticketsError" role="alert"></p>
 
                 <div class="mb-4">
                   <label for="promoCode" class="form-label">Промокод (необов&apos;язково)</label>
@@ -184,8 +187,10 @@
                 </p>
               </div>
 
-              <div class="alert alert-success mt-3 d-none" id="successMessage" role="alert">
-                Дякуємо! Ваше замовлення прийнято. Очікуйте лист на вказаний email.
+              <div class="alert alert-success mt-3 d-none" id="successMessage" role="status" aria-live="polite">
+                <strong class="d-block mb-2">Реєстрацію успішно оформлено!</strong>
+                <div class="small" id="successMessageDetails"></div>
+                <p class="mb-0 mt-2 small success-note">На email надійде підтвердження з деталями замовлення.</p>
               </div>
             </div>
           </div>

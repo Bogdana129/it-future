@@ -267,6 +267,23 @@ footer {
   border-color: #f87171;
 }
 
+.form-control-custom.is-invalid ~ .invalid-feedback,
+.was-validated .form-control-custom:invalid ~ .invalid-feedback {
+  display: block;
+}
+
+.form-error-hint {
+  color: #f87171;
+}
+
+.success-note {
+  color: rgba(134, 239, 172, 0.85);
+}
+
+#successMessageDetails {
+  white-space: pre-line;
+}
+
 /* Buttons */
 .btn-glow {
   background: linear-gradient(135deg, var(--accent), var(--accent-2));

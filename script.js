@@ -26,7 +26,13 @@ const calculationBox = document.getElementById("calculationBox");
 const calculationDetails = document.getElementById("calculationDetails");
 const finalTotalEl = document.getElementById("finalTotal");
 const successMessage = document.getElementById("successMessage");
+const successMessageDetails = document.getElementById("successMessageDetails");
 const calcOnlyBtn = document.getElementById("calcOnlyBtn");
+const nameErrorEl = document.getElementById("nameError");
+const emailErrorEl = document.getElementById("emailError");
+const standardErrorEl = document.getElementById("standardError");
+const vipErrorEl = document.getElementById("vipError");
+const ticketsErrorEl = document.getElementById("ticketsError");
 
 /**
  * Перевірка імені: мінімум 2 символи, лише літери, пробіли, дефіс
@@ -115,54 +121,62 @@ function getDiscountPercent(totalTickets) {
  * Розрахунок вартості з детальним текстовим звітом
  */
 function calculateTickets(standardQty, vipQty, promoRaw) {
+  const promoText = typeof promoRaw === "string" ? promoRaw : "";
+
   const standardSum = standardQty * PRICE_STANDARD;
   const vipSum = vipQty * PRICE_VIP;
-  let subtotal = standardSum + vipSum;
+  let subtotalBeforeDiscount = standardSum + vipSum;
+  let subtotal = subtotalBeforeDiscount;
   const totalTickets = standardQty + vipQty;
 
   let lines = [];
   lines.push(`Квитки Standard: ${standardQty} × ${PRICE_STANDARD} грн = ${standardSum} грн`);
   lines.push(`Квитки VIP: ${vipQty} × ${PRICE_VIP} грн = ${vipSum} грн`);
-  lines.push(`────────────────────────────`);
-  lines.push(`Проміжна сума: ${subtotal} грн`);
+  lines.push("────────────────────────────");
+  lines.push(`Проміжна сума: ${subtotalBeforeDiscount} грн`);
   lines.push(`Усього квитків: ${totalTickets}`);
 
   const discountPercent = getDiscountPercent(totalTickets);
   let discountAmount = 0;
 
   if (discountPercent > 0) {
-    discountAmount = (subtotal * discountPercent) / 100;
-    subtotal = subtotal - discountAmount;
+    discountAmount = (subtotalBeforeDiscount * discountPercent) / 100;
+    subtotal = subtotalBeforeDiscount - discountAmount;
     lines.push(`Знижка ${discountPercent}%: −${Math.round(discountAmount)} грн`);
-    lines.push(`Після знижки: ${Math.round(subtotal)} грн`);
+    lines.push(`Після відсоткової знижки: ${Math.round(subtotal)} грн`);
   } else {
-    lines.push(`Знижка: 0% (потрібно 3+ квитки для знижки)`);
+    lines.push("Знижка: 0% (для 3–4 квитків — 10%, для 5+ — 20%)");
   }
 
+  const promoTrimmed = promoText.trim().toUpperCase();
   let promoApplied = false;
-  const promoTrimmed = promoRaw.trim().toUpperCase();
 
   if (promoTrimmed === PROMO_CODE) {
     promoApplied = true;
     subtotal = subtotal - PROMO_DISCOUNT;
-    lines.push(`Промокод ${PROMO_CODE}: −${PROMO_DISCOUNT} грн`);
+    lines.push(`Промокод ${PROMO_CODE}: −${PROMO_DISCOUNT} грн (після % знижки)`);
   } else if (promoTrimmed.length > 0) {
-    lines.push(`Промокод «${promoRaw.trim()}» не знайдено (знижка не застосована)`);
+    lines.push(`Промокод «${promoText.trim()}» не знайдено — знижка не застосована`);
   }
 
+  let wasClamped = false;
   if (subtotal < 0) {
+    wasClamped = true;
     subtotal = 0;
-    lines.push(`Підсумок скориговано: сума не може бути від'ємною → 0 грн`);
   }
 
   const finalTotal = Math.round(subtotal);
-  lines.push(`────────────────────────────`);
+  if (wasClamped) {
+    lines.push("Увага: підсумок скориговано до 0 грн (не може бути від'ємним).");
+  }
+  lines.push("────────────────────────────");
   lines.push(`ДО СПЛАТИ: ${finalTotal} грн`);
 
   return {
     details: lines.join("\n"),
     finalTotal: finalTotal,
     promoApplied: promoApplied,
+    totalTickets: totalTickets,
   };
 }
 
@@ -176,113 +190,211 @@ function setFieldError(input, errorEl, message, isError) {
   }
 }
 
+function setTicketsError(message) {
+  if (message) {
+    ticketsErrorEl.textContent = message;
+    ticketsErrorEl.classList.remove("d-none");
+  } else {
+    ticketsErrorEl.textContent = "";
+    ticketsErrorEl.classList.add("d-none");
+  }
+}
+
 function updateParticipantsHint(standardQty, vipQty) {
   const total = standardQty + vipQty;
   totalParticipantsEl.textContent = String(total);
+}
+
+function hideRegistrationSuccess() {
+  successMessage.classList.add("d-none");
+  successMessageDetails.textContent = "";
 }
 
 function showCalculation(result) {
   calculationDetails.textContent = result.details;
   finalTotalEl.textContent = String(result.finalTotal);
   calculationBox.classList.remove("d-none");
-  successMessage.classList.add("d-none");
 }
 
 /**
- * Повна валідація форми; повертає об'єкт з даними або null
+ * Повідомлення після успішної відправки форми
  */
-function validateForm() {
+function showRegistrationSuccess(data, result) {
+  const lines = [
+    `Учасник: ${data.name}`,
+    `Email: ${data.email}`,
+    `Квитки — Standard: ${data.standardQty}, VIP: ${data.vipQty} (усього ${result.totalTickets})`,
+    `До сплати: ${result.finalTotal} грн`,
+  ];
+
+  successMessageDetails.textContent = lines.join("\n");
+  successMessage.classList.remove("d-none");
+  successMessage.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+/**
+ * Валідація лише квитків (кнопка «Лише розрахунок»)
+ */
+function validateTicketsSection() {
   let isValid = true;
 
-  const nameCheck = validateName(fullNameInput.value);
-  setFieldError(fullNameInput, document.getElementById("nameError"), nameCheck.message, !nameCheck.ok);
-  if (!nameCheck.ok) {
-    isValid = false;
-  }
-
-  const emailCheck = validateEmail(emailInput.value);
-  setFieldError(emailInput, document.getElementById("emailError"), emailCheck.message, !emailCheck.ok);
-  if (!emailCheck.ok) {
-    isValid = false;
-  }
-
   const standardCheck = validateTicketQuantity(standardQtyInput.value, "Standard");
-  setFieldError(
-    standardQtyInput,
-    document.getElementById("standardError"),
-    standardCheck.message,
-    !standardCheck.ok
-  );
+  setFieldError(standardQtyInput, standardErrorEl, standardCheck.message, !standardCheck.ok);
   if (!standardCheck.ok) {
     isValid = false;
   }
 
   const vipCheck = validateTicketQuantity(vipQtyInput.value, "VIP");
-  setFieldError(vipQtyInput, document.getElementById("vipError"), vipCheck.message, !vipCheck.ok);
+  setFieldError(vipQtyInput, vipErrorEl, vipCheck.message, !vipCheck.ok);
   if (!vipCheck.ok) {
     isValid = false;
   }
 
-  let standardQty = standardCheck.number;
-  let vipQty = vipCheck.number;
+  setTicketsError("");
+
+  const standardQty = standardCheck.number;
+  const vipQty = vipCheck.number;
 
   if (standardCheck.ok && vipCheck.ok) {
     const partCheck = validateParticipants(standardQty, vipQty);
     if (!partCheck.ok) {
       isValid = false;
-      setFieldError(standardQtyInput, document.getElementById("standardError"), partCheck.message, true);
-      setFieldError(vipQtyInput, document.getElementById("vipError"), partCheck.message, true);
+      setTicketsError(partCheck.message);
+      standardQtyInput.classList.add("is-invalid");
+      vipQtyInput.classList.add("is-invalid");
     } else {
       updateParticipantsHint(standardQty, vipQty);
     }
   }
 
   if (!isValid) {
+    hideRegistrationSuccess();
     return null;
   }
 
   return {
-    name: fullNameInput.value.trim(),
-    email: emailInput.value.trim(),
     standardQty: standardQty,
     vipQty: vipQty,
     promo: promoCodeInput.value,
   };
 }
 
-function runCalculation(showSuccess) {
-  const data = validateForm();
-  if (data === null) {
+/**
+ * Повна валідація форми реєстрації
+ */
+function validateForm() {
+  let isValid = true;
+
+  const nameCheck = validateName(fullNameInput.value);
+  setFieldError(fullNameInput, nameErrorEl, nameCheck.message, !nameCheck.ok);
+  if (!nameCheck.ok) {
+    isValid = false;
+  }
+
+  const emailCheck = validateEmail(emailInput.value);
+  setFieldError(emailInput, emailErrorEl, emailCheck.message, !emailCheck.ok);
+  if (!emailCheck.ok) {
+    isValid = false;
+  }
+
+  const ticketData = validateTicketsSection();
+  if (ticketData === null) {
+    isValid = false;
+  }
+
+  if (!isValid) {
     form.classList.add("was-validated");
+    hideRegistrationSuccess();
+    return null;
+  }
+
+  return {
+    name: fullNameInput.value.trim(),
+    email: emailInput.value.trim(),
+    standardQty: ticketData.standardQty,
+    vipQty: ticketData.vipQty,
+    promo: ticketData.promo,
+  };
+}
+
+function runCalculation(isFullRegistration) {
+  let data = null;
+
+  if (isFullRegistration) {
+    data = validateForm();
+  } else {
+    setFieldError(fullNameInput, nameErrorEl, "", false);
+    setFieldError(emailInput, emailErrorEl, "", false);
+    data = validateTicketsSection();
+  }
+
+  if (data === null) {
+    if (!isFullRegistration) {
+      form.classList.remove("was-validated");
+    }
     return;
   }
 
   const result = calculateTickets(data.standardQty, data.vipQty, data.promo);
   showCalculation(result);
 
-  if (showSuccess) {
-    successMessage.classList.remove("d-none");
+  if (isFullRegistration) {
+    showRegistrationSuccess(data, result);
+  } else {
+    hideRegistrationSuccess();
   }
 }
 
-// Події
+function scrollToFirstInvalid() {
+  const firstInvalid = form.querySelector(".is-invalid");
+  if (firstInvalid) {
+    firstInvalid.focus();
+    firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+
 form.addEventListener("submit", function (event) {
   event.preventDefault();
   runCalculation(true);
+  if (form.querySelector(".is-invalid")) {
+    scrollToFirstInvalid();
+  }
 });
 
 calcOnlyBtn.addEventListener("click", function () {
   runCalculation(false);
+  scrollToFirstInvalid();
 });
 
 function onQuantityChange() {
-  let standardQty = Number(standardQtyInput.value) || 0;
-  let vipQty = Number(vipQtyInput.value) || 0;
+  let standardQty = Number(standardQtyInput.value);
+  let vipQty = Number(vipQtyInput.value);
+
+  if (Number.isNaN(standardQty) || standardQty < 0) {
+    standardQty = 0;
+  }
+  if (Number.isNaN(vipQty) || vipQty < 0) {
+    vipQty = 0;
+  }
+
   updateParticipantsHint(standardQty, vipQty);
+
+  if (standardQty + vipQty >= 1) {
+    setTicketsError("");
+    standardQtyInput.classList.remove("is-invalid");
+    vipQtyInput.classList.remove("is-invalid");
+  }
 }
+
+fullNameInput.addEventListener("input", function () {
+  setFieldError(fullNameInput, nameErrorEl, "", false);
+});
+
+emailInput.addEventListener("input", function () {
+  setFieldError(emailInput, emailErrorEl, "", false);
+});
 
 standardQtyInput.addEventListener("input", onQuantityChange);
 vipQtyInput.addEventListener("input", onQuantityChange);
 
-// Початкове значення лічильника
 onQuantityChange();
